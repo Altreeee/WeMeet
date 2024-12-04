@@ -14,9 +14,6 @@ from bson.json_util import dumps
 from datetime import datetime
 from starlette.middleware.base import BaseHTTPMiddleware
 
-uri = ""
-client = MongoClient(uri, server_api=ServerApi('1'))
-db = client.ChatApp
 
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -52,11 +49,10 @@ class LocationUpdate(BaseModel):
 
 app = FastAPI()
 
-uri = "mongodb+srv://gaoqi:1155218605@cluster0.zhrbj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+uri = ""
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client.ChatApp
-'''rooms_collection = db.rooms
-messages_collection = db.messages'''
+
 
 # 房间管理类
 class RoomManager:
@@ -75,11 +71,6 @@ class RoomManager:
             if not self.rooms[pin_code]:
                 del self.rooms[pin_code]
 
-    '''async def broadcast(self, pin_code: str, message: str):
-        """向房间内所有用户发送消息"""
-        if pin_code in self.rooms:
-            for connection in self.rooms[pin_code]:
-                await connection.send_text(message)'''
 
     async def broadcast(self, pin_code: str, user_id: str, name: str, message: str, timestamp: int):
         """
@@ -140,21 +131,7 @@ class RoomManager:
 manager = RoomManager()
 
 
-'''def get_messages(pinCode: str):
-    # Query the messages for that chat room, sorted by time
-    messages_cursor = db.messages.find(
-        {"room_id": str(pinCode)},
-        {"_id": 0, "userId": 1, "name": 1, "message": 1}
-    ).sort("timestamp", 1)
-    # Convert the cursor to a list for iteration
-    messages = list(messages_cursor)
-    data = {
-        "data": {
-            "messages": messages,
-        },
-        "status": "OK"
-    }
-    return JSONResponse(content=jsonable_encoder(data))'''
+
 async def send_messages(pin_code: str):
     """
     按时间顺序逐条发送历史消息给客户端
